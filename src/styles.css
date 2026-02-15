@@ -314,6 +314,18 @@ header h1 {
     animation: fadeInDown 0.5s ease-out;
 }
 
+.game-timer {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffd700;
+    text-align: center;
+    margin: 10px 0;
+    min-height: 40px;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    visibility: hidden;
+}
+
 .game-word-container {
     display: flex;
     align-items: center;

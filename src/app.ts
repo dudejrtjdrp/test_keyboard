@@ -56,6 +56,7 @@ class KeyboardTester {
     private gameInput: HTMLInputElement;
     private gameWord: HTMLElement;
     private gameWordContainer: HTMLElement;
+    private gameTimer: HTMLElement;
     private gameResults: HTMLElement;
 
     private gameActive: boolean = false;
@@ -65,6 +66,7 @@ class KeyboardTester {
     private wordStartTime: number = 0;
     private reactionTimes: number[] = [];
     private isWaitingForNext: boolean = false;
+    private timerInterval: number | null = null;
 
     private translations: Translations = {
         mainTitle: {
@@ -371,6 +373,7 @@ class KeyboardTester {
         this.gameInput = document.getElementById('gameInput') as HTMLInputElement;
         this.gameWord = document.getElementById('gameWord')!;
         this.gameWordContainer = document.querySelector('.game-word-container')!;
+        this.gameTimer = document.getElementById('gameTimer')!;
         this.gameResults = document.getElementById('gameResults')!;
 
         this.loadStats();
@@ -904,6 +907,8 @@ class KeyboardTester {
         this.gameMode = false;
         this.gameActive = false;
         this.gameInput.disabled = true;
+        this.stopTimer();
+        this.gameTimer.style.visibility = 'hidden';
         
         this.instructionElement.style.display = 'flex';
         this.reactionGame.style.display = 'none';
@@ -933,6 +938,9 @@ class KeyboardTester {
             return;
         }
 
+        this.stopTimer();
+        this.gameTimer.textContent = '0.000s';
+        this.gameTimer.style.visibility = 'hidden';
         this.gameWord.textContent = this.translations.ready[this.currentLanguage];
         this.gameWordContainer.classList.add('preparing');
         this.gameInput.value = '';
@@ -951,6 +959,7 @@ class KeyboardTester {
             this.gameInput.disabled = false;
             this.gameInput.focus();
             this.wordStartTime = Date.now();
+            this.startTimer();
         }, randomDelay);
     }
 
@@ -963,6 +972,7 @@ class KeyboardTester {
         if (inputValue === currentWord) {
             const reactionTime = Date.now() - this.wordStartTime;
             this.reactionTimes.push(reactionTime);
+            this.stopTimer();
             
             this.gameInput.classList.remove('wrong');
             this.gameInput.classList.add('correct');
@@ -983,6 +993,25 @@ class KeyboardTester {
             setTimeout(() => {
                 this.gameInput.classList.remove('wrong');
             }, 500);
+        }
+    }
+
+    private startTimer(): void {
+        this.gameTimer.style.visibility = 'visible';
+        this.gameTimer.textContent = '0.000s';
+        
+        this.timerInterval = window.setInterval(() => {
+            if (!this.gameActive || this.wordStartTime === 0) return;
+            
+            const elapsed = (Date.now() - this.wordStartTime) / 1000;
+            this.gameTimer.textContent = `${elapsed.toFixed(3)}s`;
+        }, 10);
+    }
+
+    private stopTimer(): void {
+        if (this.timerInterval !== null) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
         }
     }
 
